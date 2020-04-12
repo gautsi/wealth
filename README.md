@@ -1,2 +1,2 @@
-# wealth_ineq_sim
+# wealth
 Wealth inequaltiy simulations, inspired by Piketty's Capital and Ideology
