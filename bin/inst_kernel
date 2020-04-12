@@ -1,0 +1,3 @@
+#! /bin/bash
+# run this to install the ipython kernel kernel
+ipython kernel install --user --name=.venv
