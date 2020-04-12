@@ -26,5 +26,6 @@ At each time step define the class of a person's wealth: *higher* if > 90th perc
 Higher and middle class ownership increase (higher more so than middle) at the expense of lower class.
 
 # Next steps
+- [ ] take average over many simulations
 - [ ] what if distribution of wealth percent change is tighter for higher wealths, i.e. lower wealth values have greater chance of large changes than higher?
 - [ ] effect of different progressive tax schemes?
