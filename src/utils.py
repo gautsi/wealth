@@ -4,44 +4,47 @@ Utility functions
 import pandas as pd
 
 
-wealth_fields_order = ["person", "time_step", "wealth"] # field order for wealth DataFrames
-
 def fix_to_range(num, minimum, maximum):
     '''fix num to be between minimum and maximum'''
     return minimum if num < minimum else maximum if num > maximum else num
 
-def list_to_dataframe(f):
-    '''decorator: convert a list of wealths into a dataframe, f is a function that returns a list of wealths'''
-    def wrapper(*args, **kwargs):
-        l = f(*args, **kwargs)
-        return pd.DataFrame({"person": range(len(l)), "wealth": l})
-    return wrapper
+def list_to_json(l):
+    '''convert a list of wealths into a json dictionary of wealth info'''
+    return [{"person": i, "wealths": [{"time_step": 0, "wealth": j}]} for i, j in enumerate(l)]
 
-def evolve_one_to_all(f):
-    '''decorator: apply wealth evolution function f that evolves a singe wealth to a wealth DataFrame'''
-    def wrapper(df, *args, **kwargs):
-        # get current wealth values
-        curr_wealths = df[df.time_step == df.time_step.max()]
-        # evolve all current wealth values
-        curr_wealths["wealth"] = curr_wealths.wealth.map(lambda x: f(x, *args, **kwargs))
-        # add new values to the dataframe
-        return pd.concat([df, curr_wealths.assign(time_step = df.time_step.max() + 1)[wealth_fields_order]])
-    return wrapper
+def get_wealth(person, time_stamp):
+    return {"person": person["person"], "wealth": [i["wealth"] for i in person["wealths"] if i["time_step"] == time_stamp][0]}
 
-def add_pcnt_rank(wealths):
-    wealths["pct_rank"] = wealths.groupby(["time_step"]).wealth.rank(pct=True)
-    
-def group(pct_rank):
-    if pct_rank < 0.5:
+def get_wealths(w, time_step):
+    return [get_wealth(p, time_step) for p in w.w]
+
+
+def get_latest_wealth(person):
+    latest_wealth = None
+    for ts_wealth in person["wealths"]:
+        if latest_wealth is None or ts_wealth["time_step"] > latest_wealth["time_step"]:
+            latest_wealth = ts_wealth
+    return latest_wealth
+
+def group(pcnt_rank):
+    if pcnt_rank < 0.5:
         return "lower"
-    if pct_rank > 0.9:
+    if pcnt_rank > 0.9:
         return "higher"
     else:
         return "middle"
-    
-def add_group(wealths):
-    add_pcnt_rank(wealths)
-    wealths["group"] = wealths.pct_rank.map(group)
+
+
+def add_group(w, time_step):
+    ws = get_wealths(w, time_step)
+    num_p = len(ws)
+    ws_sorted = sorted(ws, key=lambda x: x["wealth"])
+    for i, j in enumerate(ws_sorted):
+        person = [p for p in w.w if p["person"] == j["person"]][0]
+        ts = [t for t in person["wealths"] if t["time_step"] == time_step][0]
+        ts["pcnt_rank"] = 1.0 * i / num_p
+        ts["group"] = group(ts["pcnt_rank"])
+        
     
 def group_stats(wealths):
     add_group(wealths)
