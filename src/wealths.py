@@ -52,10 +52,11 @@ class Wealths(object):
     
     def groups_over_time(self):
         gs = self.group_stats()
+        ts = [i["time_step"] for i in gs]
         fig, ax = plt.subplots(figsize=(10, 5))
-        for c in ["lower", "middle", "higher"]:
-            group_data = groups[(groups["group"] == c) & (groups.time_step > 0)].sort_values("time_step")
-            ax.plot(group_data.time_step, group_data.group_pct, linewidth = 2, label = c)
+        for g in ["lower", "middle", "higher"]:
+            group_data = [i["wealths"]["{}_pcnt".format(g)] for i in gs]
+            ax.plot(ts, group_data, linewidth = 2, label = g)
         ax.legend()
         return fig, ax
 

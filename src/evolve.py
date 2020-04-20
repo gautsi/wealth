@@ -42,7 +42,6 @@ def uniform_change(wealth, min_change=-1, max_change=1):
     change = np.random.uniform(low=min_change, high=max_change)
     return wealth + change
 
-
 @evolve_one_to_all
 def normal_change(wealth, loc=0, scale=0.1):
     '''assume percent wealth change is normally distributed around loc with standard deviation scale'''

@@ -44,14 +44,3 @@ def add_group(w, time_step):
         ts = [t for t in person["wealths"] if t["time_step"] == time_step][0]
         ts["pcnt_rank"] = 1.0 * i / num_p
         ts["group"] = group(ts["pcnt_rank"])
-        
-    
-def group_stats(wealths):
-    add_group(wealths)
-    groups = wealths.groupby(["time_step", "group"], as_index = False).wealth.sum()
-    groups["ttl_wealth"] = groups[["time_step"]].merge(
-        right = groups.groupby(["time_step"], as_index = False).wealth.sum(),
-        on = ["time_step"],
-        how="left")["wealth"]
-    groups["group_pct"] = groups.wealth / groups.ttl_wealth
-    return groups
